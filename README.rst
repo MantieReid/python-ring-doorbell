@@ -139,6 +139,91 @@ Displaying the last video capture URL
     'https://ring-transcoded-videos.s3.amazonaws.com/99999999.mp4?X-Amz-Expires=3600&X-Amz-Date=20170313T232537Z&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=TOKEN_SECRET/us-east-1/s3/aws4_request&X-Amz-SignedHeaders=host&X-Amz-Signature=secret'
 
 
+Getting all of the event ID's
+-----------------------------
+
+.. code-block:: python
+
+  print("getting the total number of videos in the ring account")
+  
+  # enters the username and the password from the config file
+  myring = Ring(config.username, config.password)  # enters the username and the password from the config file
+  
+  # selects the first doorbell from the doorbell query lists.
+  doorbell = myring.doorbells[0]
+  
+  # events is a list that will store  info from the history.
+  events = []
+  
+  # a counter that will be used to count the number of videos
+  counter = 0
+  
+  # get the information about the last 100 videos taken.
+  history = doorbell.history(limit=100)
+  
+  # keeps doing it until it gets all of the videos info from the ring account.
+  while (len(history) > 0):
+  
+    # info from history is added to events.
+    events += history
+  
+    # tells us the total amount of videos in the account.
+    counter += len(history)
+  
+    # gets 100 videos that are older than  the last video listed in the list.
+    history = doorbell.history(older_than=history[-1]['id'])
+  
+    # prints out the total amount of videos
+  print("total amount of videos is " + str(counter))
+  
+  # this will hold all of the download urls.
+  downloasdurl = []
+  
+  # the list that will hold the video ID's
+  eventidlist = []
+  
+  # enters the password and username for ring.
+  myring = Ring(config.username, config.password)
+  
+  # gets the first doorbell found in the ring list.
+  doorbell = myring.doorbells[0]
+  
+  for doorbell in myring.doorbells:
+  
+    # listing the last 100 events of any kind
+    for event in doorbell.history(limit=100):
+  
+      # appends the eventids to the eventidlist.
+      eventidlist.append(event['id'])
+  
+      # prints the length of list id eventidlist
+    print("the length of eventid list is " + str(len(eventidlist)))
+  
+    # prints out all of the items in the eventID list.
+    print("eventidlist is " + str(eventidlist))
+  
+    # defines history to get all of the videos older than the last video listed in the list.
+    history = doorbell.history(limit=100, older_than=eventidlist[-1])
+  
+    # defines history to get all of the videos older than the last video listed in the list.
+    while (len(eventidlist) < counter):
+      history = doorbell.history(limit=100, older_than=eventidlist[-1])
+  
+      for event in history:
+  
+        # adds the IDs to the list.
+        eventidlist.append(event['id'])
+  
+        # removes any duplicates in the list.
+        eventidlist = list(dict.fromkeys(eventidlist))
+  
+        # prints the length of the list
+      print("the length of eventid list is " + str(len(eventidlist)))
+  
+      # prints what is in the list.
+      print("event id list is " + str(eventidlist))
+
+
 How to contribute
 -----------------
 See CONTRIBUTING.rst
